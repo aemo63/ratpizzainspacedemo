@@ -24,6 +24,11 @@ const bulletSpeed = 10;
 const enemySpeed = 2;
 const enemyBulletSpeed = 5;
 
+let leftPressed = false;
+let rightPressed = false;
+let spacePressed = false;
+let gamePaused = false;
+
 function drawRect(x, y, width, height, color) {
     context.fillStyle = color;
     context.fillRect(x, y, width, height);
@@ -65,7 +70,7 @@ function handleEnemyBullets() {
 }
 
 function handleEnemies() {
-    if (Math.random() < 0.02) {
+    if (!gamePaused && Math.random() < 0.02) {
         enemies.push({
             x: Math.random() * (canvas.width - 50),
             y: 0,
@@ -86,7 +91,7 @@ function handleEnemies() {
             }
         }
 
-        if (Math.random() < 0.01) {
+        if (!gamePaused && Math.random() < 0.01) {
             enemyBullets.push({
                 x: enemies[i].x + enemies[i].width / 2 - 5,
                 y: enemies[i].y + enemies[i].height,
@@ -148,6 +153,7 @@ function displayScoreText(x, y) {
 }
 
 function gameOver() {
+    gamePaused = true;
     gameOverScreen.style.display = "block";
     finalScore.textContent = `Your final score is: ${score}`;
     resetGame();
@@ -160,51 +166,21 @@ function resetGame() {
     enemyBullets.length = 0;
     enemies.length = 0;
     player.x = canvas.width / 2 - 25;
+    gamePaused = false;
 }
 
 function restartGame() {
     gameOverScreen.style.display = "none";
+    resetGame();
     requestAnimationFrame(gameLoop);
 }
-
-let leftPressed = false;
-let rightPressed = false;
-let spacePressed = false;
-
-document.addEventListener("keydown", (event) => {
-    if (event.code === "ArrowLeft") leftPressed = true;
-    if (event.code === "ArrowRight") rightPressed = true;
-    if (event.code === "Space") spacePressed = true;
-});
-
-document.addEventListener("keyup", (event) => {
-    if (event.code === "ArrowLeft") leftPressed = false;
-    if (event.code === "ArrowRight") rightPressed = false;
-    if (event.code === "Space") spacePressed = false;
-});
-
-canvas.addEventListener("touchstart", (event) => {
-    const touchX = event.touches[0].clientX;
-    if (touchX < canvas.width / 2) {
-        leftPressed = true;
-    } else {
-        rightPressed = true;
-    }
-    spacePressed = true;
-});
-
-canvas.addEventListener("touchend", () => {
-    leftPressed = false;
-    rightPressed = false;
-    spacePressed = false;
-});
 
 function gameLoop() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     handlePlayerMovement();
 
-    if (spacePressed) {
+    if (!gamePaused && spacePressed) {
         bullets.push({
             x: player.x + player.width / 2 - 5,
             y: player.y,
@@ -235,4 +211,35 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
+// Event listeners for player controls
+document.addEventListener("keydown", (event) => {
+    if (event.code === "ArrowLeft") leftPressed = true;
+    if (event.code === "ArrowRight") rightPressed = true;
+    if (event.code === "Space") spacePressed = true;
+});
+
+document.addEventListener("keyup", (event) => {
+    if (event.code === "ArrowLeft") leftPressed = false;
+    if (event.code === "ArrowRight") rightPressed = false;
+    if (event.code === "Space") spacePressed = false;
+});
+
+// Touch controls for mobile
+canvas.addEventListener("touchstart", (event) => {
+    const touchX = event.touches[0].clientX;
+    if (touchX < canvas.width / 2) {
+        leftPressed = true;
+    } else {
+        rightPressed = true;
+    }
+    spacePressed = true;
+});
+
+canvas.addEventListener("touchend", () => {
+    leftPressed = false;
+    rightPressed = false;
+    spacePressed = false;
+});
+
+// Start the game loop
 gameLoop();
