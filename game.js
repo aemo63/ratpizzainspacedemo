@@ -10,9 +10,11 @@ const player = {
     width: 50,
     height: 50,
     speed: 10,
-    color: "white"
+    color: "white",
+    hearts: 3
 };
 
+let score = 0;
 const bullets = [];
 const enemies = [];
 const bulletSpeed = 10;
@@ -21,6 +23,12 @@ const enemySpeed = 2;
 function drawRect(x, y, width, height, color) {
     context.fillStyle = color;
     context.fillRect(x, y, width, height);
+}
+
+function drawText(text, x, y, color, fontSize = "20px") {
+    context.fillStyle = color;
+    context.font = `${fontSize} Arial`;
+    context.fillText(text, x, y);
 }
 
 function handlePlayerMovement() {
@@ -57,6 +65,10 @@ function handleEnemies() {
         if (enemies[i].y > canvas.height) {
             enemies.splice(i, 1);
             i--;
+            player.hearts -= 0.5;
+            if (player.hearts <= 0) {
+                resetGame();
+            }
         }
     }
 }
@@ -71,10 +83,19 @@ function detectCollisions() {
                 enemies.splice(j, 1);
                 bullets.splice(i, 1);
                 i--;
+                score += 5;
                 break;
             }
         }
     }
+}
+
+function resetGame() {
+    player.hearts = 3;
+    score = 0;
+    bullets.length = 0;
+    enemies.length = 0;
+    player.x = canvas.width / 2 - 25;
 }
 
 let leftPressed = false;
@@ -89,7 +110,7 @@ document.addEventListener("keydown", (event) => {
 
 document.addEventListener("keyup", (event) => {
     if (event.code === "ArrowLeft") leftPressed = false;
-    if (event.code === "ArrowRight") rightPressed = false;
+    if (event.code === "ArrowRight") leftPressed = false;
     if (event.code === "Space") spacePressed = false;
 });
 
@@ -132,6 +153,12 @@ function gameLoop() {
     drawRect(player.x, player.y, player.width, player.height, player.color);
     bullets.forEach(bullet => drawRect(bullet.x, bullet.y, bullet.width, bullet.height, bullet.color));
     enemies.forEach(enemy => drawRect(enemy.x, enemy.y, enemy.width, enemy.height, enemy.color));
+
+    // Draw score
+    drawText(`Score: ${score}`, 10, 30, "white");
+
+    // Draw hearts
+    drawText(`Hearts: ${player.hearts}`, 10, 60, "white");
 
     requestAnimationFrame(gameLoop);
 }
