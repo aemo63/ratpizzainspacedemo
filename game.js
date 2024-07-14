@@ -28,9 +28,7 @@ function gameLoop() {
     context.clearRect(0, 0, canvas.width, canvas.height);
 
     // Update game state
-    // Example: Update player position
-    // Example: Update enemies
-    // Example: Check collisions
+    updateEnemies();
 
     // Draw game elements
     drawPlayer();
@@ -52,13 +50,36 @@ function drawPlayer() {
     context.fillRect(player.x, player.y, player.width, player.height);
 }
 
-// Draw enemies function (example)
+// Draw enemies function
 function drawEnemies() {
     context.fillStyle = 'red';
-    // Example enemy drawing logic
-    // for (let i = 0; i < enemies.length; i++) {
-    //     context.fillRect(enemies[i].x, enemies[i].y, enemies[i].width, enemies[i].height);
-    // }
+    for (let i = 0; i < enemies.length; i++) {
+        context.fillRect(enemies[i].x, enemies[i].y, enemies[i].width, enemies[i].height);
+    }
+}
+
+// Update enemies function
+function updateEnemies() {
+    // Move existing enemies downwards
+    for (let i = 0; i < enemies.length; i++) {
+        enemies[i].y += 2; // Speed of enemy movement
+        if (enemies[i].y > canvas.height) {
+            enemies.splice(i, 1);
+            i--;
+            hearts--; // Lose a heart if an enemy passes the player
+        }
+    }
+
+    // Randomly create new enemies
+    if (Math.random() < 0.02) { // Adjust the rate of enemy creation
+        let enemy = {
+            x: Math.random() * (canvas.width - 50),
+            y: -50,
+            width: 50,
+            height: 50
+        };
+        enemies.push(enemy);
+    }
 }
 
 // Draw score function
