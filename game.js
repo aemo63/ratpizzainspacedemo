@@ -1,6 +1,6 @@
 const player = {
 
-  x: canvas.width / 2 - 25,
+  x: canvas.width / 2 - 60,
 
   y: canvas.height - 60,
 
